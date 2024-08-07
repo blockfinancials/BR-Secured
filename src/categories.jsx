@@ -34,8 +34,8 @@ const theme = createTheme({
           fontSize: "8rem",
           color: "#3498db",
           marginBottom: "30px",
-          textAlign: "center", // Center align the text
-          wordBreak: "break-word", // Allow word breaking for wrapping
+          textAlign: "center",
+          wordBreak: "break-word",
         },
       },
     },
