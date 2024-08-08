@@ -6,13 +6,13 @@ import {
   TextField,
   Grid,
   Button,
-  Avatar,
   InputAdornment,
   Divider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { wallets } from "./utility/wallets";
+import WalletModal from "./wallet-modal";
 
 const theme = createTheme({
   typography: {
@@ -20,12 +20,24 @@ const theme = createTheme({
   },
 });
 
-const WalletSelectionModal = ({ open, onClose, onSelectWallet }) => {
+const WalletSelectionModal = ({ open, onClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedWallet, setSelectedWallet] = useState(null);
+  const [openWalletModal, setOpenWalletModal] = useState(false);
 
   const filteredWallets = wallets.filter((wallet) =>
     wallet.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleSelectWallet = (wallet) => {
+    setSelectedWallet(wallet);
+    setOpenWalletModal(true);
+  };
+
+  const handleCloseWalletModal = () => {
+    setOpenWalletModal(false);
+    setSelectedWallet(null);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -91,7 +103,7 @@ const WalletSelectionModal = ({ open, onClose, onSelectWallet }) => {
             {filteredWallets.map((wallet) => (
               <Grid item xs={4} key={wallet.id}>
                 <Button
-                  onClick={() => onSelectWallet(wallet)}
+                  onClick={() => handleSelectWallet(wallet)}
                   sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -149,6 +161,12 @@ const WalletSelectionModal = ({ open, onClose, onSelectWallet }) => {
           </Grid>
         </Box>
       </Modal>
+      
+      <WalletModal
+        open={openWalletModal}
+        onClose={handleCloseWalletModal}
+        selectedWallet={selectedWallet}
+      />
     </ThemeProvider>
   );
 };

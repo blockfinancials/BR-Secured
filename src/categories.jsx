@@ -119,18 +119,17 @@ const Categories = () => {
           sx={{
             fontSize: { xs: "1.5rem", sm: "5rem", md: "2.2rem" },
             lineHeight: { xs: 1.2, sm: 1.1, md: 1 },
-           mt: "20px",
-           mb: "-5px"
+            mt: "20px",
+            mb: "-5px",
           }}
         >
-          Make Your Selection Below
+          Why Choose Us{" "}
         </Typography>
         <Box sx={{ padding: { xs: 2, sm: 4, md: 6 } }}>
           <Grid container spacing={3} justifyContent="center">
             {categories.map((category, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Box
-                  onClick={() => handleOpenModal(category)}
                   sx={{
                     backgroundColor: "rgba(8, 23, 48, 0.8)",
                     p: 3,

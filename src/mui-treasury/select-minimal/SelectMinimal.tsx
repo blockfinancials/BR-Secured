@@ -6,6 +6,8 @@ import { menuClasses } from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { selectClasses } from "@mui/material/Select";
 import { Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import Walleticon from "../../assets/Walleticon.png";
 
 export function SelectMinimal({ value, onChange, menuItems }) {
   return (
@@ -18,7 +20,14 @@ export function SelectMinimal({ value, onChange, menuItems }) {
         renderValue={(selected) => {
           if (selected.length === 0) {
             return (
-              <Typography style={{ color: "white" }}>Select Chain</Typography>
+              <Box display="flex" alignItems="center">
+                <img
+                  src={Walleticon}
+                  alt="Chain Icon"
+                  style={{ marginRight: "8px", width: "20px", height: "20px" }}
+                />
+                <Typography style={{ color: "white" }}>Select Chain</Typography>
+              </Box>
             );
           }
           return selected;

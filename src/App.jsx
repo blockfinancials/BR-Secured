@@ -4,13 +4,16 @@ import { Button, Typography, Box, Container, Stack } from "@mui/material";
 import { styled } from "@mui/system";
 import "./App.css";
 import Categories from "./categories";
-import WalletModal from "./wallet-modal";
+import WalletbaseModal from "./walletbasemodal";
 import WalletSelectionModal from "./walletselectionmodal";
 import { SelectMinimal } from "./mui-treasury/select-minimal";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CryptoCarousel from "./cryptocarousel";
-import {wallets} from "./utility/wallets";
-import HomeFooter from "./Homefooter"
+import { wallets } from "./utility/wallets";
+import HomeFooter from "./Homefooter";
+import Cryptowallet from "./assets/Cryptowallet.png";
+import Heroimg from "./assets/heroimg.png";
+
 const theme = createTheme({
   typography: {
     fontFamily: "Poppins, sans-serif",
@@ -48,8 +51,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
 function App() {
   const [cryptocurrencies, setCryptocurrencies] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-  const [openWalletSelectionModal, setOpenWalletSelectionModal] = useState(false);
+  const [openWalletbaseModal, setOpenWalletbaseModal] = useState(false);
+  const [openWalletSelectionModal, setOpenWalletSelectionModal] =
+    useState(false);
 
   useEffect(() => {
     fetchCryptocurrencies();
@@ -78,20 +82,17 @@ function App() {
   };
 
   const handleWalletChange = (event) => {
-    setSelectedWallet(wallets.find(wallet => wallet.id === event.target.value));
+    setSelectedWallet(
+      wallets.find((wallet) => wallet.id === event.target.value)
+    );
   };
 
   const handleConnectWallet = () => {
-    if (selectedWallet) {
-      setOpenModal(true);
-    } else {
-      setOpenWalletSelectionModal(true);
-    }
+    setOpenWalletbaseModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setSelectedWallet(null);
+  const handleCloseWalletbaseModal = () => {
+    setOpenWalletbaseModal(false);
   };
 
   const handleCloseWalletSelectionModal = () => {
@@ -101,7 +102,11 @@ function App() {
   const handleSelectWallet = (wallet) => {
     setSelectedWallet(wallet);
     setOpenWalletSelectionModal(false);
-    setOpenModal(true);
+  };
+
+  const handleOpenWalletSelectionModal = () => {
+    setOpenWalletbaseModal(false);
+    setOpenWalletSelectionModal(true);
   };
 
   return (
@@ -117,90 +122,116 @@ function App() {
           }}
         >
           <Box
-            sx={{
-              textAlign: "center",
-              maxWidth: 800,
-              width: "100%",
-              px: 2,
-              mt: { xs: 7, md: 5 },
-            }}
-          >
-            <Typography
-              variant="h1"
-              sx={{
-                fontSize: { xs: "3.5rem", sm: "5rem", md: "8rem" },
-                lineHeight: { xs: 1.2, sm: 1.1, md: 1 },
-              }}
-            >
-              Blockchain Rectification
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Every digital artwork on Upside is authentic and truly unique.
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              Blockchain technology makes this new approach to digital ownership
-              possible. Open and decentralized protocol for syncing various
-              Wallets issues on Secure Server.
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              This is not an app but a protocol that establishes a remote
-              resolution between all noncustodial wallet It is an online server
-              which gets you across to every wallet representative to enable
-              effective complain and rectification of issues.
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                mb: 2,
-                color: "#3498db",
-                fontWeight: "bold",
-              }}
-            >
-              You will be on a chat with an Artificial Intelligence Robot with
-              zero Human interference.
-            </Typography>
+  sx={{
+    textAlign: "center",
+    maxWidth: 800,
+    width: "100%",
+    px: 2,
+    mt: { xs: 7, md: 5 },
+    position: "relative",
+  }}
+>
+  {/* <img
+    src={Heroimg}
+    alt="Top Left"
+    style={{
+      position: "absolute",
+      top: 0,
+      left: -390,
+      width: "500px",
+      height: "350px",
+      display: { xs: "none", md: "block" }, // Hide on small screens
+    }}
+  />
+  <img
+    src={Heroimg}
+    alt="Bottom Right"
+    style={{
+      position: "absolute",
+      bottom: -60,
+      right: -450,
+      width: "500px",
+      height: "350px",
+      display: { xs: "none", md: "block" }, // Hide on small screens
+    }}
+  /> */}
+  <Typography
+    variant="h1"
+    sx={{
+      fontSize: { xs: "3.5rem", sm: "5rem", md: "8rem" },
+      lineHeight: { xs: 1.2, sm: 1.1, md: 1 },
+    }}
+  >
+    Blockchain Rectification
+  </Typography>
+  <Typography variant="body1" sx={{ mb: 2 }}>
+    Every digital artwork on Upside is authentic and truly unique.
+  </Typography>
+  <Typography variant="body1" sx={{ mb: 2 }}>
+    Blockchain technology makes this new approach to digital ownership
+    possible. Open and decentralized protocol for syncing various
+    Wallets issues on Secure Server.
+  </Typography>
+  <Typography variant="body1" sx={{ mb: 2 }}>
+    This is not an app but a protocol that establishes a remote
+    resolution between all noncustodial wallet It is an online server
+    which gets you across to every wallet representative to enable
+    effective complain and rectification of issues.
+  </Typography>
+  <Typography
+    variant="body1"
+    sx={{
+      mb: 2,
+      color: "#3498db",
+      fontWeight: "bold",
+    }}
+  >
+    You will be on a chat with an Artificial Intelligence Robot with
+    zero Human interference.
+  </Typography>
+  <Stack
+    direction={{ xs: "column", sm: "row" }}
+    spacing={{ xs: 2, sm: 2 }}
+    justifyContent="center"
+    sx={{ mt: 4 }}
+  >
+    <SelectMinimal
+      value={selectedWallet ? selectedWallet.id : ""}
+      onChange={handleWalletChange}
+      menuItems={wallets.map((wallet) => ({
+        value: wallet.id,
+        label: wallet.name,
+      }))}
+      sx={{
+        minWidth: { xs: "100%", sm: "auto" },
+        "& .MuiSelect-select": {
+          fontSize: { xs: "0.8rem", sm: "0.9rem" },
+        },
+      }}
+    />
+    <StyledButton onClick={handleConnectWallet}>
+      <Typography
+        variant="caption"
+        noWrap
+        sx={{
+          color: "white",
+          fontSize: "15px",
+          textTransform: "capitalize",
+        }}
+      >
+        Connect Wallet
+      </Typography>
+    </StyledButton>
+  </Stack>
+</Box>
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={{ xs: 2 , sm: 2 }}
-              justifyContent="center"
-              sx={{ mt: 4 }}
-            >
-              <SelectMinimal
-              value={selectedWallet ? selectedWallet.id : ""}
-              onChange={handleWalletChange}
-              menuItems={wallets.map(wallet => ({
-                value: wallet.id,
-                label: wallet.name
-              }))}
-                sx={{
-                  minWidth: { xs: "100%", sm: "auto" },
-                  "& .MuiSelect-select": {
-                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                  },
-                }}
-              />
-              <StyledButton onClick={handleConnectWallet}>
-                <Typography
-                  variant="caption"
-                  noWrap
-                  sx={{
-                    color: "white",
-                    fontSize: "15px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  Connect Wallet
-                </Typography>
-              </StyledButton>
-            </Stack>
-          </Box>
+
           <Categories />
 
-          <WalletModal
-            open={openModal}
-            onClose={handleCloseModal}
-            selectedWallet={selectedWallet}
+          <WalletbaseModal
+            open={openWalletbaseModal}
+            onClose={handleCloseWalletbaseModal}
+            onOpenWalletSelection={handleOpenWalletSelectionModal}
           />
 
           <WalletSelectionModal
@@ -210,6 +241,53 @@ function App() {
           />
         </Container>
       </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" }, // Stack vertically on small screens, horizontally on larger screens
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4, // Add margin-bottom to separate from the footer
+          mx: "auto", // Center the whole container
+          textAlign: { xs: "center", md: "left" }, // Center text on small screens, left align on larger screens
+        }}
+      >
+        <Box
+          sx={{
+            width: { xs: 250, md: 400 }, // Increase width for different screen sizes
+            height: { xs: 250, md: 400 }, // Increase height for different screen sizes
+            borderRadius: "12px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            mr: { md: 4 }, // Add margin-right on larger screens to separate from the text
+            mb: { xs: -5, md: 0 }, // Add margin-bottom on small screens for spacing
+          }}
+        >
+          <img
+            src={Cryptowallet}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain", // Ensure the image fits within the box without distortion
+            }}
+          />
+        </Box>
+
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: { xs: "0.7rem", md: "1.2rem" }, // Adjust font size based on screen size
+            color: "white",
+            maxWidth: { xs: "90%", md: "50%" }, // Limit the width of the text
+          }}
+        >
+          Every step forward is a step towards innovation. Stay secure, stay
+          informed, and continue to explore the endless possibilities that the
+          digital realm has to offer.
+        </Typography>
+      </Box>
+
       <HomeFooter />
     </ThemeProvider>
   );
