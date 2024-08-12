@@ -1,6 +1,7 @@
 import { Box, Container, Stack, Typography, useTheme } from "@mui/material";
 import { socialHolder } from "./utility/navLinks";
 import Walletconnect from "./assets/WalletConnect.png";
+import Coins from "./assets/tt.png";
 
 export default function HomeFooter() {
   const theme = useTheme();
@@ -23,7 +24,7 @@ export default function HomeFooter() {
           pb={3} // Reduced padding bottom
         >
           <Stack
-                mt={4}
+            mt={4}
             gap={"1rem"}
             width={{ md: 250, lg: 300 }}
             sx={{ "*": { color: "white !important" } }} // Set text color to white
@@ -37,6 +38,18 @@ export default function HomeFooter() {
               width={150} // Adjust as needed
             />
           </Stack>
+          <Box
+            sx={{
+              position: "relative",
+              left: { xs: "50%", md: "auto" }, // Center on small screens
+              transform: { xs: "translateX(-50%)", md: "none" }, // Adjust for centering
+              right: { md: 0 }, // Align to the far right on larger screens
+            }}
+            component="img"
+            src={Coins} // Replace with your image path
+            alt="Logo"
+            width={300} // Adjust as needed
+          />
         </Stack>
         <Box py={2} minHeight={50} bgcolor="#07162D">
           {" "}

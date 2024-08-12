@@ -66,12 +66,12 @@ const Categories = () => {
       icon: Validate,
     },
     {
-      title: "Swap Tokens",
-      description: "Seamless token exchanges",
+      title: "Swap Error",
+      description: "Seamless error exchanges",
       icon: Swap,
     },
     {
-      title: "Stake Assets",
+      title: "Stake Errors",
       description: "Earn rewards through staking",
       icon: Stake,
     },
@@ -96,8 +96,8 @@ const Categories = () => {
       icon: Support,
     },
     {
-      title: "Settings",
-      description: "Customize your experience",
+      title: "Rectification",
+      description: "Ensured solutions",
       icon: Settings,
     },
   ];
