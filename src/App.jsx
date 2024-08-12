@@ -185,9 +185,8 @@ function App() {
                 fontWeight: "bold",
               }}
             >
-              This is a self-custody crypto wallet that supports 50+ crypto
-              networks with unlimited token support on the most popular web3
-              networks. No account sign-up is required because it all runs
+              This is a protocol that supports a number crypto
+              networks with unlimited token support. No account sign-up is required because it all runs
               locally on your device.
             </Typography>
             <Stack
