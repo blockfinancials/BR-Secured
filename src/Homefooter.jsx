@@ -29,7 +29,7 @@ export default function HomeFooter() {
             width={{ md: 250, lg: 300 }}
             sx={{ "*": { color: "white !important" } }} // Set text color to white
           >
-            <Typography>Secured By</Typography>
+            <Typography>Supports</Typography>
             <Box
               component="img"
               src={Walletconnect} // Replace with your image path

@@ -14,6 +14,10 @@ import HomeFooter from "./Homefooter";
 import Cryptowallet from "./assets/Cryptowallet.png";
 //import Heroimg from "./assets/heroimg.png";
 import Partners from "./components/partners";
+import { Route, Routes } from "react-router-dom";
+import PrivacyPolicy from "./policies/privacyPolicy";
+import TermsOfService from "./policies/termsOfService";
+//import { Link, useNavigate } from "react-router-dom";
 
 const theme = createTheme({
   typography: {
@@ -50,6 +54,8 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 function App() {
+  //const navigate = useNavigate();
+
   const [cryptocurrencies, setCryptocurrencies] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [openWalletbaseModal, setOpenWalletbaseModal] = useState(false);
@@ -185,9 +191,9 @@ function App() {
                 fontWeight: "bold",
               }}
             >
-              This is a protocol that supports a number crypto
-              networks with unlimited token support. No account sign-up is required because it all runs
-              locally on your device.
+              This is a protocol that supports a number crypto networks with
+              unlimited token support. No account sign-up is required because it
+              all runs locally on your device.
             </Typography>
             <Stack
               direction={{ xs: "column", sm: "row" }}
@@ -226,6 +232,8 @@ function App() {
           </Box>
           <Partners />
           <Categories />
+
+          {/* Render WalletbaseModal outside of Routes */}
           <WalletbaseModal
             open={openWalletbaseModal}
             onClose={handleCloseWalletbaseModal}
@@ -287,6 +295,10 @@ function App() {
       </Box>
 
       <HomeFooter />
+      <Routes>
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+      </Routes>
     </ThemeProvider>
   );
 }

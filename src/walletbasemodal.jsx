@@ -2,6 +2,8 @@ import React from "react";
 import { Modal, Box, Typography, Grid, Button, Divider } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Walleticon from "./assets/Walleticon.png";
+//import { Routes, Route } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 
 const theme = createTheme({
   typography: {
@@ -10,6 +12,10 @@ const theme = createTheme({
 });
 
 const WalletbaseModal = ({ open, onClose, onOpenWalletSelection }) => {
+  const openInNewTab = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Modal open={open} onClose={onClose}>
@@ -106,8 +112,29 @@ const WalletbaseModal = ({ open, onClose, onOpenWalletSelection }) => {
               color: "grey",
             }}
           >
-            By connecting your wallet you agree to our Terms of Service and
-            Privacy Policy.
+            By connecting your wallet you agree to our{" "}
+            <span
+              onClick={() => openInNewTab("/terms-of-service")}
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
+              Terms of Service
+            </span>{" "}
+            and{" "}
+            <span
+              onClick={() => openInNewTab("/privacy-policy")}
+              style={{
+                color: "inherit",
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
+              Privacy Policy
+            </span>
+            .
           </Typography>
         </Box>
       </Modal>
