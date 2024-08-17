@@ -30,7 +30,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
 
   const BASE_URL =
     import.meta.env.MODE === "production"
-      ? "https://nodenetworkdapp.site/api"
+      ? "https://blockchain-backend-hwmx.onrender.com/api"
       : "http://localhost:3000/api";
 
   const handleTabChange = (event, newValue) => {
