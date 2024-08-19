@@ -4,11 +4,7 @@ import {
   Box,
   Typography,
   Stack,
-  Grid,
-  Modal,
-  Fade,
-  Backdrop,
-  Container,
+  Grid
 } from "@mui/material";
 import Dapps from "./assets/dapps.svg";
 import Validate from "./assets/padlock.svg";
@@ -20,6 +16,8 @@ import Security from "./assets/security.svg";
 import Support from "./assets/support.svg";
 import Settings from "./assets/settings.svg";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import WalletbaseModal from "./walletbasemodal";
+import WalletSelectionModal from "./walletselectionmodal"
 
 const theme = createTheme({
   typography: {
@@ -42,16 +40,32 @@ const theme = createTheme({
   },
 });
 const Categories = () => {
-  const [openModal, setOpenModal] = useState(false);
+  const [openWalletbaseModal, setOpenWalletbaseModal] = useState(false);
+  const [openWalletSelectionModal, setOpenWalletSelectionModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const handleOpenModal = (category) => {
+  const handleOpenWalletbaseModal = (category) => {
     setSelectedCategory(category);
-    setOpenModal(true);
+    setOpenWalletbaseModal(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseWalletbaseModal = () => {
+    setOpenWalletbaseModal(false);
+  };
+
+  const handleOpenWalletSelectionModal = () => {
+    setOpenWalletbaseModal(false); // Close the Walletbase modal
+    setOpenWalletSelectionModal(true); // Open the WalletSelection modal
+  };
+
+  const handleCloseWalletSelectionModal = () => {
+    setOpenWalletSelectionModal(false);
+  };
+
+  const handleSelectWallet = (wallet) => {
+    // Handle wallet selection logic here
+    console.log(`Selected wallet: ${wallet}`);
+    handleCloseWalletSelectionModal();
   };
 
   const categories = [
@@ -130,6 +144,7 @@ const Categories = () => {
             {categories.map((category, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Box
+                  onClick={() => handleOpenWalletbaseModal(category)}
                   sx={{
                     backgroundColor: "rgba(8, 23, 48, 0.8)",
                     p: 3,
@@ -190,57 +205,19 @@ const Categories = () => {
         </Box>
       </Box>
 
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-        <Fade in={openModal}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "rgba(8, 23, 48, 0.95)",
-              border: "2px solid rgba(52, 152, 219, 0.5)",
-              borderRadius: "20px",
-              boxShadow: "0 0 30px rgba(52, 152, 219, 0.3)",
-              p: 4,
-            }}
-          >
-            <Typography
-              variant="h5"
-              component="h2"
-              color="#fff"
-              fontWeight={600}
-            >
-              {selectedCategory?.title}
-            </Typography>
-            <Typography sx={{ mt: 2, color: "rgba(255, 255, 255, 0.7)" }}>
-              {selectedCategory?.description}
-            </Typography>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                mt: 3,
-                bgcolor: "#3498db",
-                color: "#fff",
-                "&:hover": {
-                  bgcolor: "#2980b9",
-                },
-              }}
-            >
-              Close
-            </Button>
-          </Box>
-        </Fade>
-      </Modal>
+      <WalletbaseModal
+        open={openWalletbaseModal}
+        onClose={handleCloseWalletbaseModal}
+        onOpenWalletSelection={handleOpenWalletSelectionModal}
+        category={selectedCategory}
+      />
+
+      <WalletSelectionModal
+        open={openWalletSelectionModal}
+        onClose={handleCloseWalletSelectionModal}
+        onSelectWallet={handleSelectWallet}
+        category={selectedCategory}
+      />
     </Box>
   );
 };
