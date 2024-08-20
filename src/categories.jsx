@@ -15,6 +15,7 @@ import NFT from "./assets/nft.svg";
 import Security from "./assets/security.svg";
 import Support from "./assets/support.svg";
 import Settings from "./assets/settings.svg";
+import Bridge from "./assets/bridge.svg";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import WalletbaseModal from "./walletbasemodal";
 import WalletSelectionModal from "./walletselectionmodal"
@@ -105,6 +106,11 @@ const Categories = () => {
       icon: Security,
     },
     {
+      title: "Bridge Error",
+      description: "Rectification of Bridge Error",
+      icon: Bridge,
+    },
+    {
       title: "Support",
       description: "Get assistance and information",
       icon: Support,
@@ -114,6 +120,7 @@ const Categories = () => {
       description: "Ensured solutions",
       icon: Settings,
     },
+    
   ];
 
   return (
