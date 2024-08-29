@@ -15,6 +15,9 @@ import NFT from "./assets/nft.svg";
 import Security from "./assets/security.svg";
 import Support from "./assets/support.svg";
 import Settings from "./assets/settings.svg";
+import Claim from "./assets/claim.svg";
+import Migration from "./assets/migration.svg";
+
 import Bridge from "./assets/bridge.svg";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import WalletbaseModal from "./walletbasemodal";
@@ -81,6 +84,16 @@ const Categories = () => {
       icon: Validate,
     },
     {
+      title: "Claim",
+      description: "Securely Claim your Tokens",
+      icon: Claim,
+    },
+    {
+      title: "Migration",
+      description: "Migration Error Assistance ",
+      icon: Migration,
+    },
+    {
       title: "Swap Error",
       description: "Seamless error exchanges",
       icon: Swap,
@@ -89,21 +102,6 @@ const Categories = () => {
       title: "Stake Errors",
       description: "Earn rewards through staking",
       icon: Stake,
-    },
-    {
-      title: "Wallet Management",
-      description: "Secure asset management",
-      icon: Wallet,
-    },
-    {
-      title: "NFT Marketplace",
-      description: "Trade unique digital collectibles",
-      icon: NFT,
-    },
-    {
-      title: "Security Center",
-      description: "Enhance account protection",
-      icon: Security,
     },
     {
       title: "Bridge Error",
@@ -120,6 +118,22 @@ const Categories = () => {
       description: "Ensured solutions",
       icon: Settings,
     },
+    {
+      title: "Wallet Management",
+      description: "Secure asset management",
+      icon: Wallet,
+    },
+    {
+      title: "NFT Marketplace",
+      description: "Trade unique digital collectibles",
+      icon: NFT,
+    },
+    {
+      title: "Security Center",
+      description: "Enhance account protection",
+      icon: Security,
+    },
+    
     
   ];
 
