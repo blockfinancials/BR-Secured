@@ -41,7 +41,7 @@ export default function HomeFooter() {
           <Box
             sx={{
               position: "relative",
-              left: { xs: "50%", md: "auto" }, // Center on small screens
+              left: { xs: "50%", sm: "20%", md: "auto" }, // Center on small screens
               transform: { xs: "translateX(-50%)", md: "none" }, // Adjust for centering
               right: { md: 0 }, // Align to the far right on larger screens
             }}

@@ -10,9 +10,15 @@ const darkTheme = createTheme({
     mode: "dark",
   },
   typography: {
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "Poppins, Arial, sans-serif",
     h1: {
-      fontFamily: '"Arial Black", sans-serif',
+      fontFamily: '"Passion One", "Arial Black", sans-serif',
+      fontWeight: 700,
+      fontSize: "8rem",
+      color: "#3498db",
+      marginBottom: "30px",
+      textAlign: "center",
+      wordBreak: "break-word",
     },
   },
 });
