@@ -26,7 +26,10 @@ const CookieBanner = () => {
   const [showBanner, setShowBanner] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const openInNewTab = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+  
   useEffect(() => {
     const cookiesAccepted = localStorage.getItem('cookiesAccepted');
     if (cookiesAccepted === null) {
@@ -65,10 +68,14 @@ const CookieBanner = () => {
         textAlign="center"
         sx={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
       >
-        We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
-        <Link 
-          href="/privacy-policy" 
-          color="inherit" 
+        We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.{" "}
+        <span 
+          onClick={() => openInNewTab("/terms-of-service")}
+          style={{
+            color: "inherit",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
           sx={{ 
             ml: 1,
             display: isMobile ? 'block' : 'inline',
@@ -76,7 +83,7 @@ const CookieBanner = () => {
           }}
         >
           Learn more
-        </Link>
+        </span>
       </Typography>
       <Box 
         sx={{ 
