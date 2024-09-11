@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Link } from '@mui/material';
+import { Box, Button, Typography, Link, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/system';
+import { useTheme } from '@mui/material/styles';
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  color: "#3498db",
+  color: "#fff",
   borderRadius: "22px",
-  padding: "14px 20px",
+  padding: "10px 16px",
   fontSize: "0.9rem",
   backgroundColor: "#3498db",
-  height: "56px",
-  minWidth: "200px",
+  height: "48px",
+  minWidth: "120px",
   "&:hover": {
     backgroundColor: "#2980b9",
+  },
+  [theme.breakpoints.down('sm')]: {
+    height: "40px",
+    minWidth: "100px",
+    fontSize: "0.8rem",
+    padding: "8px 12px",
   },
 }));
 
 const CookieBanner = () => {
   const [showBanner, setShowBanner] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const cookiesAccepted = localStorage.getItem('cookiesAccepted');
@@ -46,37 +55,58 @@ const CookieBanner = () => {
         right: 0,
         bgcolor: 'rgba(0, 0, 0, 0.8)',
         color: 'white',
-        p: 3,
+        p: isMobile ? 2 : 3,
         zIndex: 9999,
       }}
     >
-      <Typography variant="body1" mb={2} textAlign="center">
+      <Typography 
+        variant={isMobile ? "body2" : "body1"} 
+        mb={isMobile ? 1 : 2} 
+        textAlign="center"
+        sx={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+      >
         We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
-        <Link href="/privacy-policy" color="inherit" sx={{ ml: 1 }}>
+        <Link 
+          href="/privacy-policy" 
+          color="inherit" 
+          sx={{ 
+            ml: 1,
+            display: isMobile ? 'block' : 'inline',
+            mt: isMobile ? 1 : 0
+          }}
+        >
           Learn more
         </Link>
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-        <StyledButton onClick={handleDecline}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: isMobile ? 1 : 2,
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: 'center'
+        }}
+      >
+        <StyledButton onClick={handleDecline} fullWidth={isMobile}>
           <Typography
             variant="caption"
             noWrap
             sx={{
               color: "white",
-              fontSize: "15px",
+              fontSize: isMobile ? "13px" : "15px",
               textTransform: "capitalize",
             }}
           >
             Decline
           </Typography>
         </StyledButton>
-        <StyledButton onClick={handleAccept}>
+        <StyledButton onClick={handleAccept} fullWidth={isMobile}>
           <Typography
             variant="caption"
             noWrap
             sx={{
               color: "white",
-              fontSize: "15px",
+              fontSize: isMobile ? "13px" : "15px",
               textTransform: "capitalize",
             }}
           >
