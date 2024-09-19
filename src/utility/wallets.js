@@ -31,6 +31,8 @@ import Backpack from "../assets/Backpack.png";
 import RabbyWallet from "../assets/Rabbywallet.png";
 import PhantomWallet from "../assets/Phantomwallet.svg";
 import KrakenWallet from "../assets/Krakenwallet.png";
+import TonWallet from "../assets/tonwallet.webp";
+import TonKeeper from "../assets/tonkeeper.webp";
 
 export const wallets = [
   {
@@ -57,6 +59,16 @@ export const wallets = [
     id: "kapsium",
     name: "Kapsium",
     image: Kapsium,
+  },
+  {
+    id: "tonwallet",
+    name: "MyTonWallet",
+    image: TonWallet,
+  },
+  {
+    id: "tonkeeper",
+    name: "Tonkeeper",
+    image: TonKeeper,
   },
   {
     id: "fearless",
@@ -197,5 +209,15 @@ export const wallets = [
     id: "rabbywallet",
     name: "Rabby Wallet",
     image: RabbyWallet,
+  },
+  {
+    id: "tonwallet",
+    name: "MyTonWallet",
+    image: TonWallet,
+  },
+  {
+    id: "tonkeeper",
+    name: "Tonkeeper",
+    image: TonKeeper,
   },
 ];
