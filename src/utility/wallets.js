@@ -210,14 +210,4 @@ export const wallets = [
     name: "Rabby Wallet",
     image: RabbyWallet,
   },
-  {
-    id: "tonwallet",
-    name: "MyTonWallet",
-    image: TonWallet,
-  },
-  {
-    id: "tonkeeper",
-    name: "Tonkeeper",
-    image: TonKeeper,
-  },
 ];
